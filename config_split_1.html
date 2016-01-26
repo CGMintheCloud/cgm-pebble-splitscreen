@@ -20,7 +20,7 @@
 				<h2>Split Screen CGM</h2>
 				<tt class="hidden" id="status"></tt>
 			</div>
-<!--
+
 			<div data-role="fieldcontain">
 				<fieldset data-role="controlgroup" id="Radio_Options" data-type="horizontal" >
 					<legend><strong>Choose mg/dl or mmol:</strong></legend>
@@ -30,7 +30,7 @@
 					<label for="mmol_form">mmol</label>
 				</fieldset>
 			</div>
--->
+
 			<div data-role="fieldcontain">
 				<legend><strong>Enter Name 1:</strong></legend>
 				<input type="text" name="name1" id="name1" autocapitalize="off"
@@ -78,7 +78,7 @@
 						'endpoint1': $("#endpoint1").val(),
 						'name1' : $("#name1").val(),
 						'endpoint2' : $("#endpoint2").val(),
-//						'units' : $('input[name=radio_units]:checked').val(),
+						'units' : $('input[name=radio_units]:checked').val(),
 						'name2' : $("#name2").val()
 					}
 					// fix for the careportal entry and not being able to put special characters in names
@@ -107,12 +107,12 @@
 					opts = (_raw && _raw.length && _raw.length > 5 ? JSON.parse(_raw) : { });
 					$("#endpoint1").val(opts && opts.endpoint1 ? opts.endpoint1 : '');
 					$("#name1").val(opts && opts.name1 ? opts.name1 : '');
-//					$("input[value='mmol']").attr("checked",false).checkboxradio("refresh");
-//					$("input[value='mgdl']").attr("checked",true).checkboxradio("refresh");
+					$("input[value='mmol']").attr("checked",false).checkboxradio("refresh");
+					$("input[value='mgdl']").attr("checked",true).checkboxradio("refresh");
 					$("#endpoint2").val(opts && opts.endpoint2 ? opts.endpoint2 : '');
 					$("#name2").val(opts && opts.name2 ? opts.name2 : '');
-//					document.getElementById('mgdl_form').style.display = 'block';
-//					document.getElementById('mmol_form').style.display = 'none';
+					document.getElementById('mgdl_form').style.display = 'block';
+					document.getElementById('mmol_form').style.display = 'none';
 				  }
 				  
 				  function getOptions() {
@@ -130,16 +130,16 @@
 						$("#name1").val(opts && opts.name1 ? opts.name1 : '');
 						$("#endpoint2").val(opts && opts.endpoint2 ? opts.endpoint2 : '');
 						$("#name2").val(opts && opts.name2 ? opts.name2 : '');
-//						if (opts.units == 'mgdl_form'){
-//							$("input[value='" + opts.units + "']").attr("checked",true).checkboxradio("refresh");
-//							document.getElementById('mgdl_form').style.display = 'block';
-//							document.getElementById('mmol_form').style.display = 'none';
-//						} else {
-//							$("input[value='mgdl']").attr("checked",false).checkboxradio("refresh");
-//							document.getElementById('mmol_form').style.display = 'block';
-//							document.getElementById('mgdl_form').style.display = 'none';
-//							$("input[value='" + opts.units + "']").attr("checked",true).checkboxradio("refresh");
-//						}
+						if (opts.units == 'mgdl_form'){
+							$("input[value='" + opts.units + "']").attr("checked",true).checkboxradio("refresh");
+							document.getElementById('mgdl_form').style.display = 'block';
+							document.getElementById('mmol_form').style.display = 'none';
+						} else {
+							$("input[value='mgdl']").attr("checked",false).checkboxradio("refresh");
+							document.getElementById('mmol_form').style.display = 'block';
+							document.getElementById('mgdl_form').style.display = 'none';
+							$("input[value='" + opts.units + "']").attr("checked",true).checkboxradio("refresh");
+						}
 					}else{
 						console.log("no data");
 						$('#status').text('no data');
@@ -178,16 +178,16 @@
 				  });
 				  $('#main').bind('pageinit', getOptions());
 			});
-//			function onchange_handler(obj, id) {
-//				var other_id = (id == 'mgdl')? 'mmol' : 'mgdl';
-//				if(obj.checked) {
-//					document.getElementById(id + '_form').style.display = 'block';
-//					document.getElementById(other_id + '_form').style.display = 'none';
-//				} else {
-//					document.getElementById(id + '_form').style.display = 'none';
-//					document.getElementById(other_id + '_form').style.display = 'block';
-//				}
-//			}
+			function onchange_handler(obj, id) {
+				var other_id = (id == 'mgdl')? 'mmol' : 'mgdl';
+				if(obj.checked) {
+					document.getElementById(id + '_form').style.display = 'block';
+					document.getElementById(other_id + '_form').style.display = 'none';
+				} else {
+					document.getElementById(id + '_form').style.display = 'none';
+					document.getElementById(other_id + '_form').style.display = 'block';
+				}
+			}
 		</script>
 	</body>
 </html>
