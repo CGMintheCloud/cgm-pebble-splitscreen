@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Split Screen CGM</title> 
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1"> 
+		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.css" />
+
+		<style type='text/css'>
+			.hidden {display: none; }
+			#divs div { display:none; }
+		</style>
+
+		<script src="http://code.jquery.com/jquery-2.1.1.js"></script>
+		<script src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+	</head>
+	<body>
+		<div data-role="page" id="main">
+			 <div data-role="header" class="jqm-header">
+				<h2>Split Screen CGM</h2>
+				<tt class="hidden" id="status"></tt>
+			</div>
+
+			<div data-role="fieldcontain">
+				<fieldset data-role="controlgroup" id="Radio_Options" data-type="horizontal" >
+					<legend><strong>Choose mg/dl or mmol:</strong></legend>
+					<input name="radio_units" type="radio" id="mgdl_form" onchange="onchange_handler(this, 'mgdl');" onmouseup="onchange_handler(this, 'mgdl');" value="mgdl"/>
+					<label for="mgdl_form">mg/dl</label>
+					<input type="radio" name="radio_units" id="mmol_form" value="mmol" onchange="onchange_handler(this, 'mmol');" onmouseup="onchange_handler(this, 'mmol');">
+					<label for="mmol_form">mmol</label>
+				</fieldset>
+			</div>
+
+			<div data-role="fieldcontain">
+				<legend><strong>Enter Name 1:</strong></legend>
+				<input type="text" name="name1" id="name1" autocapitalize="off"
+                autocorrect="off"/>
+			</div>
+			<div data-role="fieldcontain">
+				<legend><strong>Enter Data Endpoint 1:</strong></legend>
+				<input type="text" name="endpoint1" id="endpoint1" autocapitalize="off"
+                autocorrect="off"/>
+			</div>
+			<div>
+				ie: https://name.azurewebsites.net/pebble
+			</div>
+			<div data-role="fieldcontain">
+				<legend><strong>Enter Name 2:</strong></legend>
+				<input type="text" name="name2" id="name2" autocapitalize="off"
+                autocorrect="off"/>
+			</div>
+			<div data-role="fieldcontain">
+				<legend><strong>Enter Data Endpoint 2:</strong></legend>
+				<input type="text" name="endpoint2" id="endpoint2" autocapitalize="off"
+                autocorrect="off"/>
+			</div>
+				  
+			<div class="ui-body ui-body-b">
+				<fieldset class="ui-grid-a">
+					<div class="ui-block-a"><button type="submit" data-theme="d" id="b-cancel">Cancel</button></div>
+					<div class="ui-block-b"><button type="submit" data-theme="a" id="b-submit">Submit</button></div>
+				</fieldset>
+			</div>
+		</div>
+		<script type='text/javascript'>
+			$(window).load(function(){
+			if (console && console.log && console.log.call) {
+				  } else {
+					window.console = { log: function ( ) {
+						$('#status').text([ ].slice.call(arguments).join(' '));
+					  }
+					};
+				  }
+				  $('#status').text('initializing');
+				  function saveOptions() {
+					$('#status').text('prepping save');
+					var options = {
+						'endpoint1': $("#endpoint1").val(),
+						'name1' : $("#name1").val(),
+						'endpoint2' : $("#endpoint2").val(),
+						'units' : $('input[name=radio_units]:checked').val(),
+						'name2' : $("#name2").val()
+					}
+					// fix for the careportal entry and not being able to put special characters in names
+					//if (options.units == 'mgdl')
+					//{
+					//	options.units = 'mg/dl'
+					//}
+					try {
+					  if (window.localStorage && window.localStorage.setItem) {
+						window.localStorage.setItem('cgmOpts', JSON.stringify(options));
+					  } else {
+						window.localStorage.cgmOpts =  JSON.stringify(options);
+					  }
+					} catch (e) {
+					  console.log('err', e);
+					  options.error = e;
+					}
+					$('#status').text(['prepped', JSON.stringify(options)].join(' '));
+					return options;
+				  }
+				  function loadDefaults() {
+					var _raw = null;
+					var opts = { };
+					_raw = window.localStorage && window.localStorage.cgmOpts
+						? window.localStorage.cgmOpts : null;
+					opts = (_raw && _raw.length && _raw.length > 5 ? JSON.parse(_raw) : { });
+					$("#endpoint1").val(opts && opts.endpoint1 ? opts.endpoint1 : '');
+					$("#name1").val(opts && opts.name1 ? opts.name1 : '');
+					$("input[value='mmol']").attr("checked",false).checkboxradio("refresh");
+					$("input[value='mgdl']").attr("checked",true).checkboxradio("refresh");
+					$("#endpoint2").val(opts && opts.endpoint2 ? opts.endpoint2 : '');
+					$("#name2").val(opts && opts.name2 ? opts.name2 : '');
+					document.getElementById('mgdl_form').style.display = 'block';
+					document.getElementById('mmol_form').style.display = 'none';
+				  }
+				  
+				  function getOptions() {
+					$('#status').text('fetching from localStorage');
+					var _raw = null;
+					var opts = { };
+					
+					if(window.localStorage.cgmOpts){
+						_raw = window.localStorage && window.localStorage.cgmOpts
+							? window.localStorage.cgmOpts : null;
+						opts = (_raw && _raw.length && _raw.length > 5 ? JSON.parse(_raw) : { });
+						$('#status').text(['has opts', JSON.stringify(opts)].join(' '));
+						console.log("opts", JSON.stringify(opts));
+						$("#endpoint1").val(opts && opts.endpoint1 ? opts.endpoint1 : '');
+						$("#name1").val(opts && opts.name1 ? opts.name1 : '');
+						$("#endpoint2").val(opts && opts.endpoint2 ? opts.endpoint2 : '');
+						$("#name2").val(opts && opts.name2 ? opts.name2 : '');
+						if (opts.units == 'mgdl_form'){
+							$("input[value='" + opts.units + "']").attr("checked",true).checkboxradio("refresh");
+							document.getElementById('mgdl_form').style.display = 'block';
+							document.getElementById('mmol_form').style.display = 'none';
+						} else {
+							$("input[value='mgdl']").attr("checked",false).checkboxradio("refresh");
+							document.getElementById('mmol_form').style.display = 'block';
+							document.getElementById('mgdl_form').style.display = 'none';
+							$("input[value='" + opts.units + "']").attr("checked",true).checkboxradio("refresh");
+						}
+					}else{
+						console.log("no data");
+						$('#status').text('no data');
+						loadDefaults();
+					}
+					
+				}
+				  $().ready(function() {
+					if (window.location.hash.indexOf("debug") > -1) {
+					  $('#status').removeClass('hidden');
+					}
+					$('#status').text('ready');
+					$('#status').text('setting up events');
+					//localStorage.clear();
+					
+					$("#b-cancel").click(function() {
+					  console.log("Cancel");
+					  $('#status').text('canceling');
+					  document.location = "pebblejs://close";
+					});
+					$("#b-submit").click(function() {
+					  console.log("Submit");
+					  $('#status').text('submitting');
+					  var location = "pebblejs://close#" + encodeURIComponent(JSON.stringify(saveOptions()));
+					  console.log("Warping to: " + location);
+					  $('#status').text('closing');
+					  document.location = location;
+					  // console.log('saved', window.localStorage.cgmOpts);
+					});
+					
+					$("#b-default").click(function() {
+						console.log("Default");
+						localStorage.clear();
+						loadDefaults();
+					});
+				  });
+				  $('#main').bind('pageinit', getOptions());
+			});
+			function onchange_handler(obj, id) {
+				var other_id = (id == 'mgdl')? 'mmol' : 'mgdl';
+				if(obj.checked) {
+					document.getElementById(id + '_form').style.display = 'block';
+					document.getElementById(other_id + '_form').style.display = 'none';
+				} else {
+					document.getElementById(id + '_form').style.display = 'none';
+					document.getElementById(other_id + '_form').style.display = 'block';
+				}
+			}
+		</script>
+	</body>
+</html>
